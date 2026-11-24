@@ -43,6 +43,10 @@ class DashboardActivity : Activity() {
         root.addView(title)
         root.addView(subtitle)
 
+        addDashboardButton(root, "SOS EMERGENCY", "Send an emergency message") {
+            startActivity(Intent(this, SOSEmergencyActivity::class.java))
+        }
+
         addDashboardButton(root, "DEVICE PAIRING", "Connect parent and child devices") {
             startActivity(Intent(this, RoleSelectionActivity::class.java))
         }
