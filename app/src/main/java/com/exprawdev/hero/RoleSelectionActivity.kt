@@ -1,6 +1,6 @@
-
 package com.exprawdev.hero
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
@@ -8,7 +8,6 @@ import android.view.Gravity
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 class RoleSelectionActivity : AppCompatActivity() {
@@ -85,12 +84,13 @@ class RoleSelectionActivity : AppCompatActivity() {
     private fun saveRole(role: DeviceRole) {
         DeviceRoleStorage(this).saveRole(role)
 
-        Toast.makeText(
+        val intent = Intent(
             this,
-            "Device role saved: ${role.name}",
-            Toast.LENGTH_SHORT
-        ).show()
+            PairingActivity::class.java
+        ).apply {
+            putExtra("device_role", role.name)
+        }
 
-        finish()
+        startActivity(intent)
     }
 }
