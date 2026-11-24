@@ -71,7 +71,7 @@ class DashboardActivity : AppCompatActivity() {
             startActivity(
                 Intent(
                     this@DashboardActivity,
-                    PairingActivity::class.java
+                    RoleSelectionActivity::class.java
                 )
             )
         }
