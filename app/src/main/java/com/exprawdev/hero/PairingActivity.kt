@@ -5,8 +5,10 @@ import android.graphics.Typeface
 import android.os.Bundle
 import android.view.Gravity
 import android.widget.Button
+import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 class PairingActivity : AppCompatActivity() {
@@ -16,6 +18,9 @@ class PairingActivity : AppCompatActivity() {
     private val blue = Color.rgb(23, 105, 255)
     private val white = Color.WHITE
     private val muted = Color.LTGRAY
+
+    private lateinit var codeDisplay: TextView
+    private lateinit var codeInput: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,37 +44,77 @@ class PairingActivity : AppCompatActivity() {
         }
 
         val description = TextView(this).apply {
-            text = "Connect family devices securely."
-            textSize = 15f
+            text = "Create a code on one device and enter it on the other."
+            textSize = 14f
             setTextColor(muted)
             gravity = Gravity.CENTER
-            setPadding(0, 12, 0, 28)
+            setPadding(0, 12, 0, 24)
         }
 
-        val parentButton = createButton("PARENT DEVICE")
-        val childButton = createButton("CHILD DEVICE")
-
-        val information = TextView(this).apply {
-            text = "Choose the role for this device. Both devices must be paired with the knowledge and consent of their users."
-            textSize = 13f
-            setTextColor(muted)
+        codeDisplay = TextView(this).apply {
+            text = "------"
+            textSize = 36f
+            setTextColor(white)
             gravity = Gravity.CENTER
-            setPadding(12, 24, 12, 0)
+            typeface = Typeface.DEFAULT_BOLD
+            setPadding(20, 24, 20, 24)
+            setBackgroundColor(cardColor)
         }
 
-        parentButton.setOnClickListener {
-            showMessage("Parent device selected. Secure pairing will be configured next.")
+        val generateButton = createButton("GENERATE PAIRING CODE")
+
+        codeInput = EditText(this).apply {
+            hint = "Enter 6-digit pairing code"
+            textSize = 16f
+            setTextColor(white)
+            setHintTextColor(muted)
+            gravity = Gravity.CENTER
+            setSingleLine(true)
+            inputType = android.text.InputType.TYPE_CLASS_NUMBER
+            setPadding(16, 12, 16, 12)
         }
 
-        childButton.setOnClickListener {
-            showMessage("Child device selected. The device user must review and approve pairing.")
+        val verifyButton = createButton("CHECK CODE")
+
+        generateButton.setOnClickListener {
+            val code = PairingCode.generate()
+            codeDisplay.text = code
+
+            Toast.makeText(
+                this,
+                "Code generated. Share it only with the intended family member.",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+
+        verifyButton.setOnClickListener {
+            val code = codeInput.text.toString().trim()
+
+            val message = if (PairingCode.isValid(code)) {
+                "Code format is valid. Server verification is not connected yet."
+            } else {
+                "Please enter a valid 6-digit code."
+            }
+
+            Toast.makeText(
+                this,
+                message,
+                Toast.LENGTH_LONG
+            ).show()
         }
 
         root.addView(title)
         root.addView(description)
-        root.addView(parentButton)
-        root.addView(childButton)
-        root.addView(information)
+        root.addView(codeDisplay)
+
+        addSpace(root, 20)
+        root.addView(generateButton)
+
+        addSpace(root, 20)
+        root.addView(codeInput)
+
+        addSpace(root, 12)
+        root.addView(verifyButton)
 
         setContentView(root)
     }
@@ -77,24 +122,24 @@ class PairingActivity : AppCompatActivity() {
     private fun createButton(label: String): Button {
         return Button(this).apply {
             text = label
-            textSize = 14f
+            textSize = 13f
             setTextColor(white)
             setBackgroundColor(blue)
 
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                58
-            ).apply {
-                bottomMargin = 14
-            }
+                56
+            )
         }
     }
 
-    private fun showMessage(message: String) {
-        android.widget.Toast.makeText(
-            this,
-            message,
-            android.widget.Toast.LENGTH_LONG
-        ).show()
+    private fun addSpace(
+        parent: LinearLayout,
+        height: Int
+    ) {
+        parent.addView(
+            android.view.View(this),
+            LinearLayout.LayoutParams(1, height)
+        )
     }
 }
