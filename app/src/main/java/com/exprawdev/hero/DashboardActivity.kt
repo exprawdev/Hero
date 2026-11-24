@@ -75,8 +75,12 @@ class DashboardActivity : Activity() {
         addDashboardButton(
             root,
             "LOCATION",
-            "Location features are not connected yet"
-        ) {}
+            "View this device's GPS location"
+        ) {
+            startActivity(
+                Intent(this, LocationActivity::class.java)
+            )
+        }
 
         addDashboardButton(
             root,
