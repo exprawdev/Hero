@@ -20,6 +20,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Hero">
 
+        <activity android:name=".SOSEmergencyActivity" android:exported="false" />
         <activity android:name=".SafetySettingsActivity" android:exported="false" />
         <activity android:name=".AppManagementActivity" android:exported="false" />
         <activity android:name=".ScreenTimeActivity" android:exported="false" />
