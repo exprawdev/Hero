@@ -67,6 +67,10 @@ class DashboardActivity : Activity() {
             startActivity(Intent(this, LocationHistoryActivity::class.java))
         }
 
+        addDashboardButton(root, "SAFE ZONE", "Configure your family's safe area") {
+            startActivity(Intent(this, SafeZoneActivity::class.java))
+        }
+
         addDashboardButton(root, "SCREEN TIME", "View daily application usage") {
             startActivity(Intent(this, ScreenTimeActivity::class.java))
         }
