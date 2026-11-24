@@ -1,4 +1,3 @@
-
 package com.exprawdev.hero
 
 import android.app.Activity
@@ -60,6 +59,16 @@ class DashboardActivity : Activity() {
         ) {
             startActivity(
                 Intent(this, DeviceInfoActivity::class.java)
+            )
+        }
+
+        addDashboardButton(
+            root,
+            "DEVICE STATUS",
+            "Battery, internet and Android version"
+        ) {
+            startActivity(
+                Intent(this, DeviceStatusActivity::class.java)
             )
         }
 
