@@ -1,18 +1,18 @@
-
 package com.exprawdev.hero
 
+import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.Gravity
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import android.graphics.Color
 
 class MainActivity : AppCompatActivity() {
 
     private val backgroundColor = Color.rgb(8, 13, 24)
     private val primaryColor = Color.rgb(23, 105, 255)
-    private val textColor = Color.WHITE
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
 
         val title = TextView(this).apply {
             text = "HERO"
-            textSize = 38f
+            textSize = 42f
             setTextColor(primaryColor)
             gravity = Gravity.CENTER
             letterSpacing = 0.18f
@@ -38,31 +38,44 @@ class MainActivity : AppCompatActivity() {
         val subtitle = TextView(this).apply {
             text = "FAMILY SAFETY"
             textSize = 14f
-            setTextColor(textColor)
+            setTextColor(Color.WHITE)
             gravity = Gravity.CENTER
-            letterSpacing = 0.2f
         }
 
-        val status = TextView(this).apply {
-            text = "Your family protection starts here."
+        val description = TextView(this).apply {
+            text = "Protect what matters most."
             textSize = 15f
             setTextColor(Color.LTGRAY)
             gravity = Gravity.CENTER
+            setPadding(0, 20, 0, 30)
+        }
+
+        val enterButton = Button(this).apply {
+            text = "GET STARTED"
+            textSize = 15f
+            setTextColor(Color.WHITE)
+            setBackgroundColor(primaryColor)
+
+            setOnClickListener {
+                val intent = Intent(
+                    this@MainActivity,
+                    DashboardActivity::class.java
+                )
+                startActivity(intent)
+            }
         }
 
         root.addView(title)
         root.addView(subtitle)
+        root.addView(description)
 
-        val space = android.view.View(this)
         root.addView(
-            space,
+            enterButton,
             LinearLayout.LayoutParams(
-                1,
-                28
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                58
             )
         )
-
-        root.addView(status)
 
         setContentView(root)
     }
