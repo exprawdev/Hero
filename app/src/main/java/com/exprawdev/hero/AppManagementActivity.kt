@@ -7,11 +7,13 @@ import android.content.pm.ApplicationInfo
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.view.Gravity
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
+import android.widget.Toast
 
 class AppManagementActivity : Activity() {
 
@@ -95,7 +97,8 @@ class AppManagementActivity : Activity() {
         val installedApps = packageManager
             .getInstalledApplications(0)
             .sortedBy {
-                packageManager.getApplicationLabel(it).toString()
+                packageManager.getApplicationLabel(it)
+                    .toString()
                     .lowercase()
             }
 
@@ -178,7 +181,7 @@ class AppManagementActivity : Activity() {
 
     private fun openApplicationSettings(packageName: String) {
         val intent = Intent(
-            android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
             Uri.parse("package:$packageName")
         )
 
