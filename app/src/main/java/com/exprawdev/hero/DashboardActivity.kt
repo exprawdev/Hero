@@ -71,7 +71,9 @@ class DashboardActivity : Activity() {
             startActivity(Intent(this, AppManagementActivity::class.java))
         }
 
-        addDashboardButton(root, "SAFETY SETTINGS", "Family safety settings are not connected yet") {}
+        addDashboardButton(root, "SAFETY SETTINGS", "Manage device and family security") {
+            startActivity(Intent(this, SafetySettingsActivity::class.java))
+        }
 
         setContentView(root)
     }
