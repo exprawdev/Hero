@@ -1,3 +1,4 @@
+
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
@@ -9,21 +10,24 @@
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
-        android:allowBackup="false"
+        android:allowBackup="true"
         android:label="HERO"
         android:supportsRtl="true"
         android:theme="@style/Theme.Hero">
 
         <activity
-            android:name=".RoleSelectionActivity"
+            android:name=".DeviceInfoActivity"
             android:exported="false" />
 
         <activity
             android:name=".PairingConsentActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".RoleSelectionActivity"
             android:exported="false" />
 
         <activity
