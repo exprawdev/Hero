@@ -1,8 +1,10 @@
+
 package com.exprawdev.hero
 
 import android.Manifest
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
@@ -20,6 +22,9 @@ class LocationActivity : Activity(), LocationListener {
     private lateinit var locationManager: LocationManager
     private lateinit var locationText: TextView
     private lateinit var statusText: TextView
+
+    private var currentLatitude = Double.NaN
+    private var currentLongitude = Double.NaN
 
     private val locationPermissionRequest = 1001
 
@@ -74,6 +79,13 @@ class LocationActivity : Activity(), LocationListener {
             }
         }
 
+        val mapButton = Button(this).apply {
+            text = "OPEN MAP"
+            setOnClickListener {
+                openMap()
+            }
+        }
+
         val backButton = Button(this).apply {
             text = "BACK"
             setOnClickListener {
@@ -86,6 +98,7 @@ class LocationActivity : Activity(), LocationListener {
         root.addView(locationText)
         root.addView(permissionButton)
         root.addView(refreshButton)
+        root.addView(mapButton)
         root.addView(backButton)
 
         setContentView(root)
@@ -133,12 +146,6 @@ class LocationActivity : Activity(), LocationListener {
                 startLocationUpdates()
             } else {
                 statusText.text = "Location permission denied"
-
-                Toast.makeText(
-                    this,
-                    "Location permission is required",
-                    Toast.LENGTH_LONG
-                ).show()
             }
         }
     }
@@ -176,7 +183,8 @@ class LocationActivity : Activity(), LocationListener {
                 this
             )
 
-            val lastLocation = locationManager.getLastKnownLocation(provider)
+            val lastLocation =
+                locationManager.getLastKnownLocation(provider)
 
             if (lastLocation != null) {
                 onLocationChanged(lastLocation)
@@ -188,15 +196,36 @@ class LocationActivity : Activity(), LocationListener {
     }
 
     override fun onLocationChanged(location: Location) {
+        currentLatitude = location.latitude
+        currentLongitude = location.longitude
+
         statusText.text = "Location updated"
 
         locationText.text = """
-            Latitude: ${location.latitude}
+            Latitude: $currentLatitude
 
-            Longitude: ${location.longitude}
+            Longitude: $currentLongitude
 
             Accuracy: ${location.accuracy} meters
         """.trimIndent()
+    }
+
+    private fun openMap() {
+        if (currentLatitude.isNaN() || currentLongitude.isNaN()) {
+            Toast.makeText(
+                this,
+                "Location is not available yet",
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+
+        val intent = Intent(this, LocationMapActivity::class.java).apply {
+            putExtra("latitude", currentLatitude)
+            putExtra("longitude", currentLongitude)
+        }
+
+        startActivity(intent)
     }
 
     override fun onProviderDisabled(provider: String) {
