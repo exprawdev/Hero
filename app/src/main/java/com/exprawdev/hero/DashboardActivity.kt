@@ -1,6 +1,6 @@
-
 package com.exprawdev.hero
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
@@ -42,9 +42,14 @@ class DashboardActivity : AppCompatActivity() {
             setTextColor(muted)
         }
 
-        val statusCard = createCard(
-            "DEVICE STATUS",
-            "No device connected yet"
+        root.addView(title)
+        root.addView(subtitle)
+
+        root.addView(
+            createCard(
+                "DEVICE STATUS",
+                "No device connected yet"
+            )
         )
 
         val section = TextView(this).apply {
@@ -55,13 +60,25 @@ class DashboardActivity : AppCompatActivity() {
             setPadding(0, 28, 0, 12)
         }
 
-        root.addView(title)
-        root.addView(subtitle)
-        root.addView(statusCard)
         root.addView(section)
 
+        val pairingCard = createCard(
+            "Device Pairing",
+            "Connect a parent or child device"
+        )
+
+        pairingCard.setOnClickListener {
+            startActivity(
+                Intent(
+                    this@DashboardActivity,
+                    PairingActivity::class.java
+                )
+            )
+        }
+
+        root.addView(pairingCard)
+
         val features = listOf(
-            "Device Pairing" to "Connect a family device",
             "Live Location" to "View shared location",
             "Screen Time" to "Manage daily usage",
             "App Management" to "Review installed apps",
@@ -82,10 +99,14 @@ class DashboardActivity : AppCompatActivity() {
         title: String,
         description: String
     ): LinearLayout {
+
         val card = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER_VERTICAL
             setPadding(18, 16, 18, 16)
             setBackgroundColor(cardColor)
+            isClickable = true
+            isFocusable = true
         }
 
         val heading = TextView(this).apply {
@@ -105,13 +126,12 @@ class DashboardActivity : AppCompatActivity() {
         card.addView(heading)
         card.addView(detail)
 
-        val params = LinearLayout.LayoutParams(
+        card.layoutParams = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
             LinearLayout.LayoutParams.WRAP_CONTENT
-        )
-
-        params.bottomMargin = 12
-        card.layoutParams = params
+        ).apply {
+            bottomMargin = 12
+        }
 
         return card
     }
