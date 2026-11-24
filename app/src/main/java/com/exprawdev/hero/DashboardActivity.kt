@@ -4,8 +4,8 @@ package com.exprawdev.hero
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
-import android.view.Gravity
 import android.os.Bundle
+import android.view.Gravity
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -67,7 +67,9 @@ class DashboardActivity : Activity() {
             startActivity(Intent(this, ScreenTimeActivity::class.java))
         }
 
-        addDashboardButton(root, "APP MANAGEMENT", "App management is not connected yet") {}
+        addDashboardButton(root, "APP MANAGEMENT", "View installed applications") {
+            startActivity(Intent(this, AppManagementActivity::class.java))
+        }
 
         addDashboardButton(root, "SAFETY SETTINGS", "Family safety settings are not connected yet") {}
 
