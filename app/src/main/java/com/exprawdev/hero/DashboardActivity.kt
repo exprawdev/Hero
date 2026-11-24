@@ -1,138 +1,133 @@
+
 package com.exprawdev.hero
 
+import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
-import android.graphics.Typeface
 import android.os.Bundle
 import android.view.Gravity
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 
-class DashboardActivity : AppCompatActivity() {
+class DashboardActivity : Activity() {
 
-    private val background = Color.rgb(8, 13, 24)
-    private val cardColor = Color.rgb(19, 28, 45)
-    private val blue = Color.rgb(23, 105, 255)
-    private val white = Color.WHITE
-    private val muted = Color.LTGRAY
+    private val backgroundColor = Color.rgb(8, 13, 24)
+    private val cardColor = Color.rgb(20, 30, 48)
+    private val accentColor = Color.rgb(0, 184, 217)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        window.statusBarColor = background
-        window.navigationBarColor = background
-
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(24, 32, 24, 24)
-            setBackgroundColor(background)
+            setBackgroundColor(backgroundColor)
         }
 
         val title = TextView(this).apply {
             text = "HERO"
             textSize = 30f
-            setTextColor(blue)
-            typeface = Typeface.DEFAULT_BOLD
+            setTextColor(Color.WHITE)
+            gravity = Gravity.CENTER
         }
 
         val subtitle = TextView(this).apply {
-            text = "Family Safety Dashboard"
-            textSize = 15f
-            setTextColor(muted)
+            text = "FAMILY SAFETY DASHBOARD"
+            textSize = 13f
+            setTextColor(accentColor)
+            gravity = Gravity.CENTER
+            setPadding(0, 8, 0, 28)
         }
 
         root.addView(title)
         root.addView(subtitle)
 
-        root.addView(
-            createCard(
-                "DEVICE STATUS",
-                "No device connected yet"
-            )
-        )
-
-        val section = TextView(this).apply {
-            text = "FAMILY PROTECTION"
-            textSize = 13f
-            setTextColor(blue)
-            typeface = Typeface.DEFAULT_BOLD
-            setPadding(0, 28, 0, 12)
-        }
-
-        root.addView(section)
-
-        val pairingCard = createCard(
-            "Device Pairing",
-            "Connect a parent or child device"
-        )
-
-        pairingCard.setOnClickListener {
+        addDashboardButton(
+            root,
+            "DEVICE PAIRING",
+            "Connect parent and child devices"
+        ) {
             startActivity(
-                Intent(
-                    this@DashboardActivity,
-                    RoleSelectionActivity::class.java
-                )
+                Intent(this, RoleSelectionActivity::class.java)
             )
         }
 
-        root.addView(pairingCard)
-
-        val features = listOf(
-            "Live Location" to "View shared location",
-            "Screen Time" to "Manage daily usage",
-            "App Management" to "Review installed apps",
-            "Safe Zone" to "Manage trusted places",
-            "Activity Report" to "View family activity",
-            "Emergency SOS" to "Family emergency support",
-            "Privacy Settings" to "Manage permissions"
-        )
-
-        features.forEach { (name, description) ->
-            root.addView(createCard(name, description))
+        addDashboardButton(
+            root,
+            "DEVICE INFORMATION",
+            "View device ID and device role"
+        ) {
+            startActivity(
+                Intent(this, DeviceInfoActivity::class.java)
+            )
         }
+
+        addDashboardButton(
+            root,
+            "LOCATION",
+            "Location features are not connected yet"
+        ) {}
+
+        addDashboardButton(
+            root,
+            "SCREEN TIME",
+            "Screen time features are not connected yet"
+        ) {}
+
+        addDashboardButton(
+            root,
+            "APP MANAGEMENT",
+            "App management is not connected yet"
+        ) {}
+
+        addDashboardButton(
+            root,
+            "SAFETY SETTINGS",
+            "Family safety settings are not connected yet"
+        ) {}
 
         setContentView(root)
     }
 
-    private fun createCard(
+    private fun addDashboardButton(
+        parent: LinearLayout,
         title: String,
-        description: String
-    ): LinearLayout {
-
-        val card = LinearLayout(this).apply {
+        description: String,
+        action: () -> Unit
+    ) {
+        val container = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding(18, 16, 18, 16)
+            setPadding(18, 14, 18, 14)
             setBackgroundColor(cardColor)
-            isClickable = true
-            isFocusable = true
         }
 
-        val heading = TextView(this).apply {
+        val button = Button(this).apply {
             text = title
-            textSize = 16f
-            setTextColor(white)
-            typeface = Typeface.DEFAULT_BOLD
+            textSize = 15f
+            setTextColor(Color.WHITE)
+            setOnClickListener {
+                action()
+            }
         }
 
         val detail = TextView(this).apply {
             text = description
-            textSize = 13f
-            setTextColor(muted)
-            setPadding(0, 6, 0, 0)
+            textSize = 12f
+            setTextColor(Color.LTGRAY)
+            gravity = Gravity.CENTER
         }
 
-        card.addView(heading)
-        card.addView(detail)
+        container.addView(button)
+        container.addView(detail)
 
-        card.layoutParams = LinearLayout.LayoutParams(
+        val params = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
             LinearLayout.LayoutParams.WRAP_CONTENT
         ).apply {
-            bottomMargin = 12
+            bottomMargin = 14
         }
 
-        return card
+        parent.addView(container, params)
     }
 }
