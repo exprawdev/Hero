@@ -1,3 +1,4 @@
+
 package com.exprawdev.hero
 
 import android.app.Activity
@@ -79,6 +80,16 @@ class DashboardActivity : Activity() {
         ) {
             startActivity(
                 Intent(this, LocationActivity::class.java)
+            )
+        }
+
+        addDashboardButton(
+            root,
+            "LOCATION HISTORY",
+            "View saved GPS location records"
+        ) {
+            startActivity(
+                Intent(this, LocationHistoryActivity::class.java)
             )
         }
 
