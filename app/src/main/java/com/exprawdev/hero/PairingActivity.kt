@@ -1,3 +1,4 @@
+
 package com.exprawdev.hero
 
 import android.graphics.Color
@@ -28,6 +29,13 @@ class PairingActivity : AppCompatActivity() {
         window.statusBarColor = background
         window.navigationBarColor = background
 
+        val role = DeviceRoleStorage(this).getRole()
+        val roleName = when (role) {
+            DeviceRole.PARENT -> "PARENT DEVICE"
+            DeviceRole.CHILD -> "CHILD DEVICE"
+            null -> "ROLE NOT SELECTED"
+        }
+
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
@@ -43,12 +51,21 @@ class PairingActivity : AppCompatActivity() {
             gravity = Gravity.CENTER
         }
 
+        val roleDisplay = TextView(this).apply {
+            text = roleName
+            textSize = 15f
+            setTextColor(white)
+            gravity = Gravity.CENTER
+            setPadding(16, 18, 16, 18)
+            setBackgroundColor(cardColor)
+        }
+
         val description = TextView(this).apply {
             text = "Create a code on one device and enter it on the other."
             textSize = 14f
             setTextColor(muted)
             gravity = Gravity.CENTER
-            setPadding(0, 12, 0, 24)
+            setPadding(0, 16, 0, 24)
         }
 
         codeDisplay = TextView(this).apply {
@@ -71,48 +88,39 @@ class PairingActivity : AppCompatActivity() {
             gravity = Gravity.CENTER
             setSingleLine(true)
             inputType = android.text.InputType.TYPE_CLASS_NUMBER
-            setPadding(16, 12, 16, 12)
         }
 
         val verifyButton = createButton("CHECK CODE")
 
         generateButton.setOnClickListener {
-            val code = PairingCode.generate()
-            codeDisplay.text = code
-
-            Toast.makeText(
-                this,
-                "Code generated. Share it only with the intended family member.",
-                Toast.LENGTH_LONG
-            ).show()
+            if (role == null) {
+                showMessage("Please select a device role first.")
+            } else {
+                codeDisplay.text = PairingCode.generate()
+                showMessage("Local test code generated. Server pairing is not connected yet.")
+            }
         }
 
         verifyButton.setOnClickListener {
             val code = codeInput.text.toString().trim()
 
-            val message = if (PairingCode.isValid(code)) {
-                "Code format is valid. Server verification is not connected yet."
+            if (PairingCode.isValid(code)) {
+                showMessage("Code format is valid. Server verification is not connected yet.")
             } else {
-                "Please enter a valid 6-digit code."
+                showMessage("Please enter a valid 6-digit code.")
             }
-
-            Toast.makeText(
-                this,
-                message,
-                Toast.LENGTH_LONG
-            ).show()
         }
 
         root.addView(title)
+        addSpace(root, 18)
+        root.addView(roleDisplay)
+        addSpace(root, 16)
         root.addView(description)
         root.addView(codeDisplay)
-
-        addSpace(root, 20)
+        addSpace(root, 18)
         root.addView(generateButton)
-
-        addSpace(root, 20)
+        addSpace(root, 18)
         root.addView(codeInput)
-
         addSpace(root, 12)
         root.addView(verifyButton)
 
@@ -125,21 +133,21 @@ class PairingActivity : AppCompatActivity() {
             textSize = 13f
             setTextColor(white)
             setBackgroundColor(blue)
-
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                56
-            )
         }
     }
 
-    private fun addSpace(
-        parent: LinearLayout,
-        height: Int
-    ) {
+    private fun addSpace(parent: LinearLayout, height: Int) {
         parent.addView(
             android.view.View(this),
             LinearLayout.LayoutParams(1, height)
         )
+    }
+
+    private fun showMessage(message: String) {
+        Toast.makeText(
+            this,
+            message,
+            Toast.LENGTH_LONG
+        ).show()
     }
 }
