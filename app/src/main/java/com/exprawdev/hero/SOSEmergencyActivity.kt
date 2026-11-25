@@ -11,6 +11,7 @@ import android.view.Gravity
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 
@@ -18,7 +19,7 @@ class SOSEmergencyActivity : Activity() {
 
     private val backgroundColor = Color.rgb(8, 13, 24)
     private val cardColor = Color.rgb(20, 30, 48)
-    private val dangerColor = Color.rgb(220, 45, 55)
+    private val accentColor = Color.rgb(0, 184, 217)
 
     private lateinit var phoneInput: EditText
     private lateinit var messageInput: EditText
@@ -26,157 +27,188 @@ class SOSEmergencyActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val scrollView = ScrollView(this).apply {
+            setBackgroundColor(backgroundColor)
+            isFillViewport = true
+        }
+
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER_HORIZONTAL
-            setPadding(24, 32, 24, 24)
-            setBackgroundColor(backgroundColor)
+            setPadding(24, 30, 24, 24)
         }
 
         val title = TextView(this).apply {
-            text = "HERO EMERGENCY SOS"
+            text = "SOS EMERGENCY"
             textSize = 25f
             setTextColor(Color.WHITE)
             gravity = Gravity.CENTER
         }
 
         val subtitle = TextView(this).apply {
-            text = "Emergency assistance"
-            textSize = 14f
-            setTextColor(Color.LTGRAY)
+            text = "Prepare an emergency message"
+            textSize = 13f
+            setTextColor(accentColor)
             gravity = Gravity.CENTER
-            setPadding(0, 8, 0, 28)
+            setPadding(0, 8, 0, 26)
         }
 
-        val phoneLabel = createLabel("Emergency contact phone number")
+        val phoneLabel = createLabel("DESTINATION PHONE NUMBER")
 
         phoneInput = EditText(this).apply {
-            hint = "Example: +628123456789"
+            hint = "Enter phone number"
+            textSize = 16f
             setTextColor(Color.WHITE)
-            setHintTextColor(Color.GRAY)
+            setHintTextColor(Color.LTGRAY)
+            inputType = android.text.InputType.TYPE_CLASS_PHONE
             setSingleLine(true)
-            setPadding(14, 12, 14, 12)
+            setPadding(16, 14, 16, 14)
+            setBackgroundColor(cardColor)
         }
 
-        val messageLabel = createLabel("Emergency message")
+        val messageLabel = createLabel("EMERGENCY MESSAGE")
 
         messageInput = EditText(this).apply {
-            setText("SOS! I need emergency assistance. Please contact me.")
+            hint = "Enter your emergency message"
+            textSize = 15f
             setTextColor(Color.WHITE)
-            setHintTextColor(Color.GRAY)
-            minLines = 3
+            setHintTextColor(Color.LTGRAY)
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or
+                android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE or
+                android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
             gravity = Gravity.TOP
-            setPadding(14, 12, 14, 12)
+            minLines = 5
+            setPadding(16, 14, 16, 14)
+            setBackgroundColor(cardColor)
+            setText(
+                "I need help. Please contact me as soon as possible."
+            )
         }
 
-        val sosButton = Button(this).apply {
-            text = "SEND SOS"
-            textSize = 20f
-            setTextColor(Color.WHITE)
-            setBackgroundColor(dangerColor)
+        val confirmButton = Button(this).apply {
+            text = "PREPARE SOS MESSAGE"
             setOnClickListener {
-                confirmEmergency()
+                confirmEmergencyMessage()
             }
         }
 
-        val information = TextView(this).apply {
-            text = "SOS is not sent automatically. Review the message and send it yourself in your SMS application."
+        val historyButton = Button(this).apply {
+            text = "VIEW SOS HISTORY"
+            setOnClickListener {
+                startActivity(
+                    Intent(
+                        this@SOSEmergencyActivity,
+                        SOSHistoryActivity::class.java
+                    )
+                )
+            }
+        }
+
+        val note = TextView(this).apply {
+            text = "HERO saves the prepared message locally and opens " +
+                "your SMS application. You must review and send the " +
+                "message yourself. HERO does not send SMS automatically."
             textSize = 12f
             setTextColor(Color.LTGRAY)
-            gravity = Gravity.CENTER
-            setPadding(12, 20, 12, 20)
-        }
-
-        val backButton = Button(this).apply {
-            text = "BACK"
-            setOnClickListener {
-                finish()
-            }
+            setPadding(4, 20, 4, 8)
         }
 
         root.addView(title)
         root.addView(subtitle)
         root.addView(phoneLabel)
         root.addView(phoneInput)
+        addSpacing(root, 18)
         root.addView(messageLabel)
         root.addView(messageInput)
+        addSpacing(root, 20)
+        root.addView(confirmButton)
+        root.addView(historyButton)
+        root.addView(note)
 
-        root.addView(
-            sosButton,
-            LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                64
-            ).apply {
-                topMargin = 28
-            }
-        )
-
-        root.addView(information)
-        root.addView(backButton)
-
-        setContentView(root)
+        scrollView.addView(root)
+        setContentView(scrollView)
     }
 
-    private fun createLabel(value: String): TextView {
-        return TextView(this).apply {
-            text = value
-            textSize = 13f
-            setTextColor(Color.WHITE)
-            setPadding(0, 14, 0, 8)
-        }
-    }
-
-    private fun confirmEmergency() {
-        val phone = phoneInput.text.toString().trim()
+    private fun confirmEmergencyMessage() {
+        val phoneNumber = phoneInput.text.toString().trim()
         val message = messageInput.text.toString().trim()
 
-        if (phone.isBlank()) {
-            Toast.makeText(
-                this,
-                "Enter an emergency contact number",
-                Toast.LENGTH_SHORT
-            ).show()
+        if (phoneNumber.isBlank()) {
+            phoneInput.error = "Enter a phone number"
+            return
+        }
+
+        if (phoneNumber.length < 5) {
+            phoneInput.error = "Enter a valid phone number"
             return
         }
 
         if (message.isBlank()) {
-            Toast.makeText(
-                this,
-                "Enter an emergency message",
-                Toast.LENGTH_SHORT
-            ).show()
+            messageInput.error = "Enter an emergency message"
             return
         }
 
         AlertDialog.Builder(this)
-            .setTitle("Confirm SOS")
+            .setTitle("Confirm SOS Message")
             .setMessage(
-                "Open your SMS application with this emergency message?"
+                "Destination: $phoneNumber\n\n" +
+                    "Message:\n$message\n\n" +
+                    "Save this message to SOS History and open your SMS application?"
             )
             .setNegativeButton("CANCEL", null)
-            .setPositiveButton("CONTINUE") { _, _ ->
-                openSms(phone, message)
+            .setPositiveButton("CONFIRM") { _, _ ->
+
+                SOSHistoryActivity.recordPreparedMessage(
+                    this,
+                    phoneNumber,
+                    message
+                )
+
+                openSmsApplication(phoneNumber, message)
             }
             .show()
     }
 
-    private fun openSms(phone: String, message: String) {
+    private fun openSmsApplication(
+        phoneNumber: String,
+        message: String
+    ) {
+        val smsIntent = Intent(
+            Intent.ACTION_SENDTO,
+            Uri.parse("smsto:${Uri.encode(phoneNumber)}")
+        ).apply {
+            putExtra("sms_body", message)
+        }
+
         try {
-            val intent = Intent(
-                Intent.ACTION_SENDTO,
-                Uri.parse("smsto:${Uri.encode(phone)}")
-            ).apply {
-                putExtra("sms_body", message)
-            }
-
-            startActivity(intent)
-
-        } catch (exception: Exception) {
+            startActivity(smsIntent)
+        } catch (_: Exception) {
             Toast.makeText(
                 this,
-                "No SMS application is available",
+                "No compatible SMS application was found.",
                 Toast.LENGTH_LONG
             ).show()
         }
+    }
+
+    private fun createLabel(text: String): TextView {
+        return TextView(this).apply {
+            this.text = text
+            textSize = 12f
+            setTextColor(accentColor)
+            setPadding(4, 8, 4, 8)
+        }
+    }
+
+    private fun addSpacing(
+        parent: LinearLayout,
+        height: Int
+    ) {
+        parent.addView(
+            TextView(this),
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                height
+            )
+        )
     }
 }
