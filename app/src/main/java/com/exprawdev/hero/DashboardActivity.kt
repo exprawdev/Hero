@@ -1,3 +1,4 @@
+
 package com.exprawdev.hero
 
 import android.app.Activity
@@ -82,6 +83,10 @@ class DashboardActivity : Activity() {
 
         addDashboardButton(root, "SCREEN TIME", "View daily application usage") {
             startActivity(Intent(this, ScreenTimeActivity::class.java))
+        }
+
+        addDashboardButton(root, "DEVICE ACTIVITY REPORT", "View daily application activity") {
+            startActivity(Intent(this, DeviceActivityReportActivity::class.java))
         }
 
         addDashboardButton(root, "APP MANAGEMENT", "View installed applications") {
