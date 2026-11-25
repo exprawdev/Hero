@@ -63,6 +63,10 @@ class DashboardActivity : Activity() {
             openActivity(BatteryAlertActivity::class.java)
         }
 
+        addDashboardButton(layout, "BATTERY MONITOR CONTROL") {
+            openActivity(BatteryMonitorControlActivity::class.java)
+        }
+
         addDashboardButton(layout, "INTERNET MONITOR") {
             openActivity(InternetConnectionActivity::class.java)
         }
@@ -108,6 +112,7 @@ class DashboardActivity : Activity() {
             text = label
             textSize = 14f
             isAllCaps = true
+
             setOnClickListener {
                 action()
             }
