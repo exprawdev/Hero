@@ -95,6 +95,10 @@ class DashboardActivity : Activity() {
             openActivity(SafeZoneActivity::class.java)
         }
 
+        addDashboardButton(layout, "SAFE ZONE HISTORY") {
+            openActivity(SafeZoneHistoryActivity::class.java)
+        }
+
         addDashboardButton(layout, "SCREEN TIME") {
             openActivity(ScreenTimeActivity::class.java)
         }
