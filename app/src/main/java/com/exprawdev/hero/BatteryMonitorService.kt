@@ -26,11 +26,13 @@ class BatteryMonitorService : Service() {
             "hero_battery_monitor_channel"
 
         private const val NOTIFICATION_ID = 7301
+        private const val ALERT_STATE_KEY = "low_battery_alert_active"
     }
 
     private var receiverRegistered = false
 
     private val batteryReceiver = object : BroadcastReceiver() {
+
         override fun onReceive(context: Context, intent: Intent) {
             if (intent.action != Intent.ACTION_BATTERY_CHANGED) {
                 return
@@ -50,28 +52,7 @@ class BatteryMonitorService : Service() {
 
             val batteryPercentage = level * 100 / scale
 
-            val threshold =
-                BatteryAlertActivity.getThreshold(context)
-
-            val preferences = getSharedPreferences(
-                "hero_battery_alert",
-                Context.MODE_PRIVATE
-            )
-
-            val alertsEnabled = preferences.getBoolean(
-                "alerts_enabled",
-                true
-            )
-
-            if (alertsEnabled && batteryPercentage <= threshold) {
-                BatteryAlertNotification.showLowBatteryNotification(
-                    context,
-                    batteryPercentage,
-                    threshold
-                )
-            } else {
-                BatteryAlertNotification.cancelNotification(context)
-            }
+            checkBatteryAlert(batteryPercentage)
         }
     }
 
@@ -87,6 +68,7 @@ class BatteryMonitorService : Service() {
     ): Int {
 
         when (intent?.action) {
+
             ACTION_STOP -> {
                 stopMonitoring()
                 return START_NOT_STICKY
@@ -126,6 +108,59 @@ class BatteryMonitorService : Service() {
         receiverRegistered = true
     }
 
+    private fun checkBatteryAlert(batteryPercentage: Int) {
+
+        val preferences = getSharedPreferences(
+            "hero_battery_alert",
+            Context.MODE_PRIVATE
+        )
+
+        val threshold = preferences.getInt(
+            "threshold",
+            20
+        )
+
+        val alertsEnabled = preferences.getBoolean(
+            "alerts_enabled",
+            true
+        )
+
+        val alertAlreadyRecorded = preferences.getBoolean(
+            ALERT_STATE_KEY,
+            false
+        )
+
+        val isLowBattery =
+            alertsEnabled && batteryPercentage <= threshold
+
+        if (isLowBattery && !alertAlreadyRecorded) {
+
+            preferences.edit()
+                .putBoolean(ALERT_STATE_KEY, true)
+                .apply()
+
+            BatteryAlertHistoryActivity.recordAlert(
+                this,
+                batteryPercentage,
+                threshold
+            )
+
+            BatteryAlertNotification.showLowBatteryNotification(
+                this,
+                batteryPercentage,
+                threshold
+            )
+
+        } else if (!isLowBattery) {
+
+            preferences.edit()
+                .putBoolean(ALERT_STATE_KEY, false)
+                .apply()
+
+            BatteryAlertNotification.cancelNotification(this)
+        }
+    }
+
     private fun stopMonitoring() {
         if (receiverRegistered) {
             unregisterReceiver(batteryReceiver)
@@ -138,6 +173,7 @@ class BatteryMonitorService : Service() {
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
             val channel = NotificationChannel(
                 CHANNEL_ID,
                 "HERO Battery Monitoring",
@@ -156,17 +192,25 @@ class BatteryMonitorService : Service() {
     }
 
     private fun createForegroundNotification(): Notification {
+
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
             Notification.Builder(this, CHANNEL_ID)
-                .setSmallIcon(android.R.drawable.ic_lock_idle_charging)
+                .setSmallIcon(
+                    android.R.drawable.ic_lock_idle_charging
+                )
                 .setContentTitle("HERO Battery Monitor")
                 .setContentText("Battery monitoring is active")
                 .setOngoing(true)
                 .build()
+
         } else {
+
             @Suppress("DEPRECATION")
             Notification.Builder(this)
-                .setSmallIcon(android.R.drawable.ic_lock_idle_charging)
+                .setSmallIcon(
+                    android.R.drawable.ic_lock_idle_charging
+                )
                 .setContentTitle("HERO Battery Monitor")
                 .setContentText("Battery monitoring is active")
                 .setOngoing(true)
