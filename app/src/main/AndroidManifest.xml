@@ -59,10 +59,8 @@
         <activity android:name=".BatteryAlertActivity" android:exported="false" />
         <activity android:name=".BatteryMonitorControlActivity" android:exported="false" />
         <activity android:name=".BatteryMonitorStatusActivity" android:exported="false" />
-
-        <activity
-            android:name=".BatteryAlertHistoryActivity"
-            android:exported="false" />
+        <activity android:name=".BatteryAlertHistoryActivity" android:exported="false" />
+        <activity android:name=".BatteryAlertSummaryActivity" android:exported="false" />
 
         <service
             android:name=".BatteryMonitorService"
