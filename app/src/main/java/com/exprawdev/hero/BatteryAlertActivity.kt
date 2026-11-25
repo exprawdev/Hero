@@ -9,6 +9,7 @@ import android.view.Gravity
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.SeekBar
+import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
 
@@ -20,6 +21,7 @@ class BatteryAlertActivity : Activity() {
 
     private lateinit var thresholdValue: TextView
     private lateinit var thresholdSeekBar: SeekBar
+    private lateinit var alertSwitch: Switch
     private lateinit var alertStatus: TextView
 
     private var selectedThreshold = 20
@@ -44,7 +46,7 @@ class BatteryAlertActivity : Activity() {
         }
 
         val subtitle = TextView(this).apply {
-            text = "Configure your low battery threshold"
+            text = "Configure your battery alerts"
             textSize = 13f
             setTextColor(Color.rgb(0, 184, 217))
             gravity = Gravity.CENTER
@@ -58,8 +60,7 @@ class BatteryAlertActivity : Activity() {
         }
 
         val description = TextView(this).apply {
-            text = "Show a battery alert when the battery level " +
-                "reaches or falls below your selected percentage."
+            text = "Choose the battery percentage that triggers a low battery alert."
             textSize = 14f
             setTextColor(Color.LTGRAY)
             gravity = Gravity.CENTER
@@ -101,6 +102,14 @@ class BatteryAlertActivity : Activity() {
             setTextColor(Color.LTGRAY)
         }
 
+        alertSwitch = Switch(this).apply {
+            text = "Enable battery notifications"
+            textSize = 15f
+            setTextColor(Color.WHITE)
+            isChecked = preferences.getBoolean("alerts_enabled", true)
+            setPadding(0, 24, 0, 24)
+        }
+
         val saveButton = Button(this).apply {
             text = "SAVE BATTERY SETTINGS"
             setOnClickListener {
@@ -113,7 +122,7 @@ class BatteryAlertActivity : Activity() {
             setOnClickListener {
                 selectedThreshold = 20
                 thresholdSeekBar.progress = 15
-                updateThresholdDisplay()
+                alertSwitch.isChecked = true
                 saveSettings()
             }
         }
@@ -131,6 +140,7 @@ class BatteryAlertActivity : Activity() {
         root.addView(description)
         root.addView(thresholdSeekBar)
         root.addView(rangeLabel)
+        root.addView(alertSwitch)
         root.addView(saveButton)
         root.addView(resetButton)
         root.addView(alertStatus)
@@ -146,24 +156,27 @@ class BatteryAlertActivity : Activity() {
     }
 
     private fun saveSettings() {
-        val saved = preferences.edit()
+        preferences.edit()
             .putInt("threshold", selectedThreshold)
+            .putBoolean("alerts_enabled", alertSwitch.isChecked)
             .apply()
 
         updateSavedStatus()
 
         Toast.makeText(
             this,
-            "Battery threshold saved: $selectedThreshold%",
+            "Battery settings saved",
             Toast.LENGTH_SHORT
         ).show()
     }
 
     private fun updateSavedStatus() {
         val savedThreshold = preferences.getInt("threshold", 20)
+        val enabled = preferences.getBoolean("alerts_enabled", true)
 
         alertStatus.text =
-            "Saved battery threshold: $savedThreshold%"
+            "Threshold: $savedThreshold%\n" +
+            "Notifications: ${if (enabled) "Enabled" else "Disabled"}"
     }
 
     companion object {
