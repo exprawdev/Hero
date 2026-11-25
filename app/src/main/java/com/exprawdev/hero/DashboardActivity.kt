@@ -13,138 +13,116 @@ import android.widget.TextView
 
 class DashboardActivity : Activity() {
 
-    private val backgroundColor = Color.rgb(8, 13, 24)
-    private val cardColor = Color.rgb(20, 30, 48)
-    private val accentColor = Color.rgb(0, 184, 217)
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val scrollView = ScrollView(this).apply {
-            setBackgroundColor(backgroundColor)
-            isFillViewport = true
+            setBackgroundColor(Color.rgb(8, 13, 24))
         }
 
-        val root = LinearLayout(this).apply {
+        val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(24, 32, 24, 24)
-            setBackgroundColor(backgroundColor)
+            setPadding(24, 32, 24, 32)
         }
 
         val title = TextView(this).apply {
-            text = "HERO"
-            textSize = 30f
+            text = "HERO DASHBOARD"
+            textSize = 26f
             setTextColor(Color.WHITE)
             gravity = Gravity.CENTER
+            setPadding(0, 12, 0, 24)
         }
 
-        val subtitle = TextView(this).apply {
-            text = "FAMILY SAFETY DASHBOARD"
-            textSize = 13f
-            setTextColor(accentColor)
-            gravity = Gravity.CENTER
-            setPadding(0, 8, 0, 28)
+        layout.addView(title)
+
+        addDashboardButton(layout, "SOS EMERGENCY") {
+            openActivity(SOSEmergencyActivity::class.java)
         }
 
-        root.addView(title)
-        root.addView(subtitle)
-
-        addDashboardButton(root, "SOS EMERGENCY", "Send an emergency message") {
-            startActivity(Intent(this, SOSEmergencyActivity::class.java))
+        addDashboardButton(layout, "SOS HISTORY") {
+            openActivity(SOSHistoryActivity::class.java)
         }
 
-        addDashboardButton(root, "SOS HISTORY", "View saved emergency message records") {
-            startActivity(Intent(this, SOSHistoryActivity::class.java))
+        addDashboardButton(layout, "DEVICE PAIRING") {
+            openActivity(RoleSelectionActivity::class.java)
         }
 
-        addDashboardButton(root, "DEVICE PAIRING", "Connect parent and child devices") {
-            startActivity(Intent(this, RoleSelectionActivity::class.java))
+        addDashboardButton(layout, "DEVICE INFORMATION") {
+            openActivity(DeviceInfoActivity::class.java)
         }
 
-        addDashboardButton(root, "DEVICE INFORMATION", "View device ID and device role") {
-            startActivity(Intent(this, DeviceInfoActivity::class.java))
+        addDashboardButton(layout, "DEVICE STATUS") {
+            openActivity(DeviceStatusActivity::class.java)
         }
 
-        addDashboardButton(root, "DEVICE STATUS", "Battery, internet and Android version") {
-            startActivity(Intent(this, DeviceStatusActivity::class.java))
+        addDashboardButton(layout, "BATTERY MONITOR") {
+            openActivity(BatteryMonitorActivity::class.java)
         }
 
-        addDashboardButton(root, "BATTERY MONITOR", "View battery level and charging details") {
-            startActivity(Intent(this, BatteryMonitorActivity::class.java))
+        addDashboardButton(layout, "BATTERY ALERT") {
+            openActivity(BatteryAlertActivity::class.java)
         }
 
-        addDashboardButton(root, "INTERNET MONITOR", "View network connection information") {
-            startActivity(Intent(this, InternetConnectionActivity::class.java))
+        addDashboardButton(layout, "INTERNET MONITOR") {
+            openActivity(InternetConnectionActivity::class.java)
         }
 
-        addDashboardButton(root, "LOCATION", "View this device's GPS location") {
-            startActivity(Intent(this, LocationActivity::class.java))
+        addDashboardButton(layout, "LOCATION") {
+            openActivity(LocationActivity::class.java)
         }
 
-        addDashboardButton(root, "LOCATION HISTORY", "View saved GPS location records") {
-            startActivity(Intent(this, LocationHistoryActivity::class.java))
+        addDashboardButton(layout, "LOCATION HISTORY") {
+            openActivity(LocationHistoryActivity::class.java)
         }
 
-        addDashboardButton(root, "SAFE ZONE", "Configure your family's safe area") {
-            startActivity(Intent(this, SafeZoneActivity::class.java))
+        addDashboardButton(layout, "SAFE ZONE") {
+            openActivity(SafeZoneActivity::class.java)
         }
 
-        addDashboardButton(root, "SCREEN TIME", "View daily application usage") {
-            startActivity(Intent(this, ScreenTimeActivity::class.java))
+        addDashboardButton(layout, "SCREEN TIME") {
+            openActivity(ScreenTimeActivity::class.java)
         }
 
-        addDashboardButton(root, "DEVICE ACTIVITY REPORT", "View daily application activity") {
-            startActivity(Intent(this, DeviceActivityReportActivity::class.java))
+        addDashboardButton(layout, "DEVICE ACTIVITY REPORT") {
+            openActivity(DeviceActivityReportActivity::class.java)
         }
 
-        addDashboardButton(root, "APP MANAGEMENT", "View installed applications") {
-            startActivity(Intent(this, AppManagementActivity::class.java))
+        addDashboardButton(layout, "APP MANAGEMENT") {
+            openActivity(AppManagementActivity::class.java)
         }
 
-        addDashboardButton(root, "SAFETY SETTINGS", "Manage device and family security") {
-            startActivity(Intent(this, SafetySettingsActivity::class.java))
+        addDashboardButton(layout, "SAFETY SETTINGS") {
+            openActivity(SafetySettingsActivity::class.java)
         }
 
-        scrollView.addView(root)
+        scrollView.addView(layout)
         setContentView(scrollView)
     }
 
     private fun addDashboardButton(
-        parent: LinearLayout,
-        title: String,
-        description: String,
+        layout: LinearLayout,
+        label: String,
         action: () -> Unit
     ) {
-        val container = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(18, 14, 18, 14)
-            setBackgroundColor(cardColor)
-        }
-
         val button = Button(this).apply {
-            text = title
-            textSize = 15f
-            setTextColor(Color.WHITE)
-            setOnClickListener { action() }
+            text = label
+            textSize = 14f
+            isAllCaps = true
+            setOnClickListener {
+                action()
+            }
         }
-
-        val detail = TextView(this).apply {
-            text = description
-            textSize = 12f
-            setTextColor(Color.LTGRAY)
-            gravity = Gravity.CENTER
-        }
-
-        container.addView(button)
-        container.addView(detail)
 
         val params = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT
-        ).apply {
-            bottomMargin = 14
-        }
+            58
+        )
 
-        parent.addView(container, params)
+        params.setMargins(0, 6, 0, 6)
+        layout.addView(button, params)
+    }
+
+    private fun openActivity(activityClass: Class<*>) {
+        startActivity(Intent(this, activityClass))
     }
 }
