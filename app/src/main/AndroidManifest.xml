@@ -21,9 +21,10 @@
         android:theme="@style/Theme.Hero">
 
         <activity
-            android:name=".DeviceActivityReportActivity"
+            android:name=".InternetConnectionActivity"
             android:exported="false" />
 
+        <activity android:name=".DeviceActivityReportActivity" android:exported="false" />
         <activity android:name=".BatteryMonitorActivity" android:exported="false" />
         <activity android:name=".SafeZoneActivity" android:exported="false" />
         <activity android:name=".SOSEmergencyActivity" android:exported="false" />
