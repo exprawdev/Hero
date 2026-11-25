@@ -3,12 +3,16 @@ package com.exprawdev.hero
 
 import android.Manifest
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.Location
 import android.location.LocationManager
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.view.Gravity
 import android.widget.Button
 import android.widget.EditText
@@ -49,7 +53,7 @@ class SafeZoneActivity : Activity() {
         }
 
         val subtitle = TextView(this).apply {
-            text = "Configure your family's safe area"
+            text = "Configure and monitor your family's safe area"
             textSize = 13f
             setTextColor(accentColor)
             gravity = Gravity.CENTER
@@ -81,6 +85,27 @@ class SafeZoneActivity : Activity() {
             }
         }
 
+        val permissionButton = Button(this).apply {
+            text = "BACKGROUND LOCATION SETTINGS"
+            setOnClickListener {
+                openAppSettings()
+            }
+        }
+
+        val enableButton = Button(this).apply {
+            text = "ENABLE SAFE ZONE MONITORING"
+            setOnClickListener {
+                enableMonitoring()
+            }
+        }
+
+        val disableButton = Button(this).apply {
+            text = "DISABLE SAFE ZONE MONITORING"
+            setOnClickListener {
+                disableMonitoring()
+            }
+        }
+
         val backButton = Button(this).apply {
             text = "BACK"
             setOnClickListener {
@@ -102,12 +127,20 @@ class SafeZoneActivity : Activity() {
 
         root.addView(currentLocationButton)
         root.addView(saveButton)
+        root.addView(permissionButton)
+        root.addView(enableButton)
+        root.addView(disableButton)
         root.addView(statusText)
         root.addView(backButton)
 
         setContentView(root)
 
         loadSafeZone()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        refreshMonitoringStatus()
     }
 
     private fun createInput(hintText: String): EditText {
@@ -131,15 +164,16 @@ class SafeZoneActivity : Activity() {
     }
 
     private fun hasLocationPermission(): Boolean {
-        val fine = checkSelfPermission(
+        return checkSelfPermission(
             Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
+    }
 
-        val coarse = checkSelfPermission(
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-
-        return fine || coarse
+    private fun hasBackgroundLocationPermission(): Boolean {
+        return android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.Q ||
+            checkSelfPermission(
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
     }
 
     private fun getCurrentLocation() {
@@ -173,27 +207,23 @@ class SafeZoneActivity : Activity() {
 
                 val location = manager.getLastKnownLocation(provider)
 
-                if (location != null) {
-                    if (
+                if (
+                    location != null &&
+                    (
                         bestLocation == null ||
                         location.time > bestLocation.time
-                    ) {
-                        bestLocation = location
-                    }
+                    )
+                ) {
+                    bestLocation = location
                 }
             }
 
             if (bestLocation != null) {
-                latitudeInput.setText(
-                    bestLocation.latitude.toString()
-                )
-
-                longitudeInput.setText(
-                    bestLocation.longitude.toString()
-                )
+                latitudeInput.setText(bestLocation.latitude.toString())
+                longitudeInput.setText(bestLocation.longitude.toString())
 
                 statusText.text =
-                    "Current location loaded. Accuracy: " +
+                    "Last known location loaded. Accuracy: " +
                     "${bestLocation.accuracy.toInt()} meters"
             } else {
                 statusText.text =
@@ -203,7 +233,7 @@ class SafeZoneActivity : Activity() {
         } catch (_: SecurityException) {
             statusText.text = "Location permission is unavailable"
         } catch (_: Exception) {
-            statusText.text = "Unable to get current location"
+            statusText.text = "Unable to get location"
         }
     }
 
@@ -222,7 +252,7 @@ class SafeZoneActivity : Activity() {
             if (hasLocationPermission()) {
                 getCurrentLocation()
             } else {
-                statusText.text = "Location permission denied"
+                statusText.text = "Precise location permission denied"
             }
         }
     }
@@ -233,17 +263,17 @@ class SafeZoneActivity : Activity() {
         val radius = radiusInput.text.toString().toDoubleOrNull()
 
         if (latitude == null || latitude !in -90.0..90.0) {
-            showError("Enter a valid latitude between -90 and 90")
+            showMessage("Enter a valid latitude between -90 and 90")
             return
         }
 
         if (longitude == null || longitude !in -180.0..180.0) {
-            showError("Enter a valid longitude between -180 and 180")
+            showMessage("Enter a valid longitude between -180 and 180")
             return
         }
 
         if (radius == null || radius <= 0.0 || radius > 100000.0) {
-            showError("Enter a radius between 1 and 100000 meters")
+            showMessage("Enter a radius between 1 and 100000 meters")
             return
         }
 
@@ -251,57 +281,114 @@ class SafeZoneActivity : Activity() {
             .putString("latitude", latitude.toString())
             .putString("longitude", longitude.toString())
             .putString("radius", radius.toString())
+            .putFloat("latitude", latitude.toFloat())
+            .putFloat("longitude", longitude.toFloat())
+            .putFloat("radius", radius.toFloat())
             .putBoolean("configured", true)
             .apply()
 
-        updateStatus(latitude, longitude, radius)
+        statusText.text =
+            "Safe Zone saved. Enable monitoring to apply this area."
 
-        Toast.makeText(
-            this,
-            "Safe zone saved on this device",
-            Toast.LENGTH_SHORT
-        ).show()
+        showMessage("Safe Zone saved on this device")
     }
 
     private fun loadSafeZone() {
         if (!preferences.getBoolean("configured", false)) {
-            statusText.text = "No safe zone configured"
+            statusText.text = "No Safe Zone configured"
             return
         }
 
-        val latitude = preferences.getString("latitude", "") ?: ""
-        val longitude = preferences.getString("longitude", "") ?: ""
-        val radius = preferences.getString("radius", "") ?: ""
+        val latitude = preferences.getFloat("latitude", 0f).toString()
+        val longitude = preferences.getFloat("longitude", 0f).toString()
+        val radius = preferences.getFloat("radius", 200f).toString()
 
         latitudeInput.setText(latitude)
         longitudeInput.setText(longitude)
         radiusInput.setText(radius)
 
-        updateStatus(
-            latitude.toDoubleOrNull() ?: return,
-            longitude.toDoubleOrNull() ?: return,
-            radius.toDoubleOrNull() ?: return
+        refreshMonitoringStatus()
+    }
+
+    private fun enableMonitoring() {
+        if (!preferences.getBoolean("configured", false)) {
+            showMessage("Save a Safe Zone before enabling monitoring")
+            return
+        }
+
+        if (!hasLocationPermission()) {
+            requestPermissions(
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                locationPermissionRequest
+            )
+            return
+        }
+
+        if (!hasBackgroundLocationPermission()) {
+            AlertDialog.Builder(this)
+                .setTitle("Background Location Permission")
+                .setMessage(
+                    "To monitor Safe Zone entry and exit while HERO is not open, " +
+                    "Android requires background location permission. " +
+                    "Open app settings and select Allow all the time if available."
+                )
+                .setPositiveButton("OPEN SETTINGS") { _, _ ->
+                    openAppSettings()
+                }
+                .setNegativeButton("CANCEL", null)
+                .show()
+            return
+        }
+
+        SafeZoneGeofenceManager.register(this) { success, message ->
+            statusText.text = message
+            showMessage(message)
+
+            if (success) {
+                refreshMonitoringStatus()
+            }
+        }
+    }
+
+    private fun disableMonitoring() {
+        SafeZoneGeofenceManager.remove(this) { success, message ->
+            statusText.text = message
+            showMessage(message)
+            refreshMonitoringStatus()
+        }
+    }
+
+    private fun openAppSettings() {
+        val intent = Intent(
+            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+            Uri.parse("package:$packageName")
         )
+
+        startActivity(intent)
     }
 
-    private fun updateStatus(
-        latitude: Double,
-        longitude: Double,
-        radius: Double
-    ) {
-        statusText.text = """
-            SAFE ZONE CONFIGURED
+    private fun refreshMonitoringStatus() {
+        if (!::statusText.isInitialized) {
+            return
+        }
 
-            Latitude: $latitude
-            Longitude: $longitude
-            Radius: ${radius.toInt()} meters
+        if (!preferences.getBoolean("configured", false)) {
+            statusText.text = "No Safe Zone configured"
+            return
+        }
 
-            Local configuration saved.
-            Background geofence monitoring is not active yet.
-        """.trimIndent()
+        val enabled = preferences.getBoolean("geofence_enabled", false)
+
+        statusText.text = if (enabled) {
+            "SAFE ZONE CONFIGURED\n\nMonitoring registration succeeded.\n" +
+                "Android may deliver entry and exit events with some delay."
+        } else {
+            "SAFE ZONE CONFIGURED\n\nMonitoring is not registered.\n" +
+                "Save your area and enable monitoring."
+        }
     }
 
-    private fun showError(message: String) {
+    private fun showMessage(message: String) {
         Toast.makeText(
             this,
             message,
