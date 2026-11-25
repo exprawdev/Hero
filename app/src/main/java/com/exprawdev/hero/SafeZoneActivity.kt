@@ -1,9 +1,13 @@
 
 package com.exprawdev.hero
 
+import android.Manifest
 import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.Color
+import android.location.Location
+import android.location.LocationManager
 import android.os.Bundle
 import android.view.Gravity
 import android.widget.Button
@@ -15,7 +19,6 @@ import android.widget.Toast
 class SafeZoneActivity : Activity() {
 
     private val backgroundColor = Color.rgb(8, 13, 24)
-    private val cardColor = Color.rgb(20, 30, 48)
     private val accentColor = Color.rgb(0, 184, 217)
 
     private lateinit var latitudeInput: EditText
@@ -26,6 +29,8 @@ class SafeZoneActivity : Activity() {
     private val preferences by lazy {
         getSharedPreferences("hero_safe_zone", Context.MODE_PRIVATE)
     }
+
+    private val locationPermissionRequest = 2001
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,6 +67,13 @@ class SafeZoneActivity : Activity() {
             setPadding(12, 20, 12, 20)
         }
 
+        val currentLocationButton = Button(this).apply {
+            text = "USE CURRENT LOCATION"
+            setOnClickListener {
+                getCurrentLocation()
+            }
+        }
+
         val saveButton = Button(this).apply {
             text = "SAVE SAFE ZONE"
             setOnClickListener {
@@ -88,6 +100,7 @@ class SafeZoneActivity : Activity() {
         root.addView(createLabel("SAFE ZONE RADIUS"))
         root.addView(radiusInput)
 
+        root.addView(currentLocationButton)
         root.addView(saveButton)
         root.addView(statusText)
         root.addView(backButton)
@@ -114,6 +127,103 @@ class SafeZoneActivity : Activity() {
             textSize = 12f
             setTextColor(accentColor)
             setPadding(0, 14, 0, 6)
+        }
+    }
+
+    private fun hasLocationPermission(): Boolean {
+        val fine = checkSelfPermission(
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        val coarse = checkSelfPermission(
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        return fine || coarse
+    }
+
+    private fun getCurrentLocation() {
+        if (!hasLocationPermission()) {
+            requestPermissions(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ),
+                locationPermissionRequest
+            )
+            return
+        }
+
+        try {
+            val manager = getSystemService(
+                Context.LOCATION_SERVICE
+            ) as LocationManager
+
+            val providers = listOf(
+                LocationManager.GPS_PROVIDER,
+                LocationManager.NETWORK_PROVIDER
+            )
+
+            var bestLocation: Location? = null
+
+            for (provider in providers) {
+                if (!manager.isProviderEnabled(provider)) {
+                    continue
+                }
+
+                val location = manager.getLastKnownLocation(provider)
+
+                if (location != null) {
+                    if (
+                        bestLocation == null ||
+                        location.time > bestLocation.time
+                    ) {
+                        bestLocation = location
+                    }
+                }
+            }
+
+            if (bestLocation != null) {
+                latitudeInput.setText(
+                    bestLocation.latitude.toString()
+                )
+
+                longitudeInput.setText(
+                    bestLocation.longitude.toString()
+                )
+
+                statusText.text =
+                    "Current location loaded. Accuracy: " +
+                    "${bestLocation.accuracy.toInt()} meters"
+            } else {
+                statusText.text =
+                    "No recent location available. Enable GPS and try again."
+            }
+
+        } catch (_: SecurityException) {
+            statusText.text = "Location permission is unavailable"
+        } catch (_: Exception) {
+            statusText.text = "Unable to get current location"
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(
+            requestCode,
+            permissions,
+            grantResults
+        )
+
+        if (requestCode == locationPermissionRequest) {
+            if (hasLocationPermission()) {
+                getCurrentLocation()
+            } else {
+                statusText.text = "Location permission denied"
+            }
         }
     }
 
@@ -187,7 +297,7 @@ class SafeZoneActivity : Activity() {
             Radius: ${radius.toInt()} meters
 
             Local configuration saved.
-            Background monitoring is not active yet.
+            Background geofence monitoring is not active yet.
         """.trimIndent()
     }
 
