@@ -1,4 +1,3 @@
-
 package com.exprawdev.hero
 
 import android.app.Activity
@@ -67,6 +66,10 @@ class DashboardActivity : Activity() {
 
         addDashboardButton(root, "BATTERY MONITOR", "View battery level and charging details") {
             startActivity(Intent(this, BatteryMonitorActivity::class.java))
+        }
+
+        addDashboardButton(root, "INTERNET MONITOR", "View network connection information") {
+            startActivity(Intent(this, InternetConnectionActivity::class.java))
         }
 
         addDashboardButton(root, "LOCATION", "View this device's GPS location") {
