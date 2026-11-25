@@ -1,4 +1,3 @@
-
 package com.exprawdev.hero
 
 import android.app.Activity
