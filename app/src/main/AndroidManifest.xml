@@ -27,6 +27,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Hero">
 
+        <!-- Main Screen -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -38,35 +39,53 @@
 
         </activity>
 
+        <!-- Dashboard and Pairing -->
         <activity android:name=".DashboardActivity" android:exported="false" />
         <activity android:name=".PairingActivity" android:exported="false" />
         <activity android:name=".PairingConsentActivity" android:exported="false" />
         <activity android:name=".RoleSelectionActivity" android:exported="false" />
+
+        <!-- Device Information -->
         <activity android:name=".DeviceInfoActivity" android:exported="false" />
         <activity android:name=".DeviceStatusActivity" android:exported="false" />
+
+        <!-- Location -->
         <activity android:name=".LocationActivity" android:exported="false" />
         <activity android:name=".LocationMapActivity" android:exported="false" />
         <activity android:name=".LocationHistoryActivity" android:exported="false" />
+
+        <!-- Screen Time and App Management -->
         <activity android:name=".ScreenTimeActivity" android:exported="false" />
         <activity android:name=".AppManagementActivity" android:exported="false" />
         <activity android:name=".SafetySettingsActivity" android:exported="false" />
+
+        <!-- SOS -->
         <activity android:name=".SOSEmergencyActivity" android:exported="false" />
-        <activity android:name=".SafeZoneActivity" android:exported="false" />
-        <activity android:name=".BatteryMonitorActivity" android:exported="false" />
-        <activity android:name=".DeviceActivityReportActivity" android:exported="false" />
-        <activity android:name=".InternetConnectionActivity" android:exported="false" />
         <activity android:name=".SOSHistoryActivity" android:exported="false" />
+
+        <!-- Safe Zone -->
+        <activity android:name=".SafeZoneActivity" android:exported="false" />
+        <activity android:name=".SafeZoneHistoryActivity" android:exported="false" />
+
+        <!-- Battery Monitor -->
+        <activity android:name=".BatteryMonitorActivity" android:exported="false" />
         <activity android:name=".BatteryAlertActivity" android:exported="false" />
         <activity android:name=".BatteryMonitorControlActivity" android:exported="false" />
         <activity android:name=".BatteryMonitorStatusActivity" android:exported="false" />
         <activity android:name=".BatteryAlertHistoryActivity" android:exported="false" />
         <activity android:name=".BatteryAlertSummaryActivity" android:exported="false" />
 
+        <!-- Device Activity and Internet -->
+        <activity android:name=".DeviceActivityReportActivity" android:exported="false" />
+        <activity android:name=".InternetConnectionActivity" android:exported="false" />
+
+        <!-- Safe Zone Geofence Receiver -->
         <receiver
             android:name=".SafeZoneGeofenceReceiver"
             android:enabled="true"
             android:exported="false" />
 
+        <!-- Battery Monitor Foreground Service -->
         <service
             android:name=".BatteryMonitorService"
             android:exported="false"
