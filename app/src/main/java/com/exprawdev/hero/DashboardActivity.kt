@@ -67,6 +67,10 @@ class DashboardActivity : Activity() {
             openActivity(BatteryMonitorControlActivity::class.java)
         }
 
+        addDashboardButton(layout, "BATTERY MONITOR STATUS") {
+            openActivity(BatteryMonitorStatusActivity::class.java)
+        }
+
         addDashboardButton(layout, "INTERNET MONITOR") {
             openActivity(InternetConnectionActivity::class.java)
         }
