@@ -1,87 +1,42 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+plugins {
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+}
 
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+android {
+    namespace = "com.exprawdev.hero"
+    compileSdk = 35
 
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    defaultConfig {
+        applicationId = "com.exprawdev.hero"
+        minSdk = 26
+        targetSdk = 35
+        versionCode = 1
+        versionName = "1.0"
+    }
 
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+        }
+    }
 
-    <uses-permission
-        android:name="android.permission.PACKAGE_USAGE_STATS"
-        tools:ignore="ProtectedPermissions" />
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
 
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+}
 
-    <application
-        android:allowBackup="true"
-        android:label="HERO"
-        android:supportsRtl="true"
-        android:theme="@style/Theme.Hero">
+dependencies {
+    implementation("androidx.core:core-ktx:1.15.0")
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("com.google.android.material:material:1.12.0")
+    implementation("androidx.activity:activity-ktx:1.9.3")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
 
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".DashboardActivity" android:exported="false" />
-        <activity android:name=".PairingActivity" android:exported="false" />
-        <activity android:name=".PairingConsentActivity" android:exported="false" />
-        <activity android:name=".RoleSelectionActivity" android:exported="false" />
-
-        <activity android:name=".DeviceInfoActivity" android:exported="false" />
-        <activity android:name=".DeviceStatusActivity" android:exported="false" />
-
-        <activity android:name=".LocationActivity" android:exported="false" />
-        <activity android:name=".LocationMapActivity" android:exported="false" />
-        <activity android:name=".LocationHistoryActivity" android:exported="false" />
-
-        <activity android:name=".ScreenTimeActivity" android:exported="false" />
-        <activity android:name=".AppManagementActivity" android:exported="false" />
-        <activity android:name=".SafetySettingsActivity" android:exported="false" />
-
-        <activity android:name=".SOSEmergencyActivity" android:exported="false" />
-        <activity android:name=".SOSHistoryActivity" android:exported="false" />
-
-        <activity android:name=".SafeZoneActivity" android:exported="false" />
-        <activity android:name=".SafeZoneHistoryActivity" android:exported="false" />
-
-        <activity android:name=".BatteryMonitorActivity" android:exported="false" />
-        <activity android:name=".BatteryAlertActivity" android:exported="false" />
-        <activity android:name=".BatteryMonitorControlActivity" android:exported="false" />
-        <activity android:name=".BatteryMonitorStatusActivity" android:exported="false" />
-        <activity android:name=".BatteryAlertHistoryActivity" android:exported="false" />
-        <activity android:name=".BatteryAlertSummaryActivity" android:exported="false" />
-
-        <activity android:name=".DeviceActivityReportActivity" android:exported="false" />
-        <activity android:name=".InternetConnectionActivity" android:exported="false" />
-
-        <receiver
-            android:name=".SafeZoneGeofenceReceiver"
-            android:enabled="true"
-            android:exported="false" />
-
-        <service
-            android:name=".BatteryMonitorService"
-            android:enabled="true"
-            android:exported="false"
-            android:foregroundServiceType="specialUse">
-
-            <property
-                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="User-started battery monitoring with visible notification" />
-        </service>
-
-    </application>
-
-</manifest>
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+}
