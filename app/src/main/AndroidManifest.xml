@@ -15,6 +15,9 @@
     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions" />
 
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+
     <application
         android:allowBackup="true"
         android:label="HERO"
@@ -48,10 +51,18 @@
         <activity android:name=".DeviceActivityReportActivity" android:exported="false" />
         <activity android:name=".InternetConnectionActivity" android:exported="false" />
         <activity android:name=".SOSHistoryActivity" android:exported="false" />
+        <activity android:name=".BatteryAlertActivity" android:exported="false" />
 
-        <activity
-            android:name=".BatteryAlertActivity"
-            android:exported="false" />
+        <service
+            android:name=".BatteryMonitorService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="User-started battery level monitoring with visible notification" />
+
+        </service>
 
     </application>
 
