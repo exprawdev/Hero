@@ -75,6 +75,10 @@ class DashboardActivity : Activity() {
             openActivity(BatteryAlertHistoryActivity::class.java)
         }
 
+        addDashboardButton(layout, "BATTERY ALERT SUMMARY") {
+            openActivity(BatteryAlertSummaryActivity::class.java)
+        }
+
         addDashboardButton(layout, "INTERNET MONITOR") {
             openActivity(InternetConnectionActivity::class.java)
         }
