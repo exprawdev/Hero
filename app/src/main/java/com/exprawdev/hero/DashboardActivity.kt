@@ -1,3 +1,4 @@
+
 package com.exprawdev.hero
 
 import android.app.Activity
@@ -50,6 +51,10 @@ class DashboardActivity : Activity() {
 
         addDashboardButton(root, "SOS EMERGENCY", "Send an emergency message") {
             startActivity(Intent(this, SOSEmergencyActivity::class.java))
+        }
+
+        addDashboardButton(root, "SOS HISTORY", "View saved emergency message records") {
+            startActivity(Intent(this, SOSHistoryActivity::class.java))
         }
 
         addDashboardButton(root, "DEVICE PAIRING", "Connect parent and child devices") {
