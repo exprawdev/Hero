@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.Gravity
 import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
 
 class DashboardActivity : Activity() {
@@ -17,6 +18,11 @@ class DashboardActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val scrollView = ScrollView(this).apply {
+            setBackgroundColor(backgroundColor)
+            isFillViewport = true
+        }
 
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -58,6 +64,10 @@ class DashboardActivity : Activity() {
             startActivity(Intent(this, DeviceStatusActivity::class.java))
         }
 
+        addDashboardButton(root, "BATTERY MONITOR", "View battery level and charging details") {
+            startActivity(Intent(this, BatteryMonitorActivity::class.java))
+        }
+
         addDashboardButton(root, "LOCATION", "View this device's GPS location") {
             startActivity(Intent(this, LocationActivity::class.java))
         }
@@ -82,7 +92,8 @@ class DashboardActivity : Activity() {
             startActivity(Intent(this, SafetySettingsActivity::class.java))
         }
 
-        setContentView(root)
+        scrollView.addView(root)
+        setContentView(scrollView)
     }
 
     private fun addDashboardButton(
